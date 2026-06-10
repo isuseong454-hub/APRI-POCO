@@ -464,30 +464,20 @@ input.scat-name{border:none;border-bottom:1.5px solid var(--apri-juice);backgrou
 .nudge-item+.nudge-item{border-top:1px dashed var(--apri-water)}
 /* ===== 데스크탑(넓은 화면) 버전 — 자동 전환 ===== */
 @media(min-width:900px){
-  #app{max-width:1080px;padding-bottom:52px}
-  header{padding:26px 40px 0}
-  main{padding:0 40px}
-  .nav{gap:26px;margin-top:20px}
-  .nav span{font-size:14.5px;padding-bottom:14px}
-  .sec{margin:26px 0 20px}
-  .sec h1{font-size:48px}
+  /* 데스크탑: 가운데 정렬 단일 컬럼 (넓고 깔끔, 2열 어긋남 없음) */
+  #app{max-width:720px;padding-bottom:84px}
+  header{padding:26px 34px 0}
+  main{padding:0 34px}
+  .sec h1{font-size:44px}
   .sec .eye{font-size:11.5px}
-  /* 카드형 화면을 2열로 (보이는 뷰에만) */
-  .view.on{display:grid;grid-template-columns:1fr 1fr;column-gap:26px;align-items:start}
-  .view.on>*{grid-column:1 / -1}
-  .view.on>.card,.view.on>.pl,.view.on>.sup-card{grid-column:auto}
-  /* 메뉴 쇼케이스 그리드는 더 많은 열 */
-  .grid{grid-template-columns:repeat(4,1fr);gap:18px}
-  /* 메뉴 상세 사진은 적당한 크기로 */
+  .view.on{display:block}
+  .grid{grid-template-columns:repeat(3,1fr);gap:16px}
   .heroimg{max-width:460px}
-  /* FAB(추가 버튼) 가운데 적당히 */
-  .fab{max-width:1080px;padding:16px 40px 16px}
-  .fab .btn{max-width:300px;margin:0 auto;display:block}
-  /* 하단 워크스페이스 바 데스크탑 폭 */
-  .wsnav{max-width:1080px;height:64px}
+  .fab{max-width:720px;padding:16px 34px 16px}
+  .fab .btn{max-width:320px;margin:0 auto;display:block}
+  .wsnav{max-width:720px;height:64px}
   .wsnav button i{font-size:21px}
   .wsnav button span{font-size:11px}
-  #app{padding-bottom:84px}
 }
 @media(min-width:900px){
   .hero .big{font-size:60px}
@@ -562,7 +552,7 @@ function load(){
   const menus=SEED_MENU.map(m=>({id:uid(),name:m[0],sell:m[1],yield:m[2]||1,desc:m[4]||'',img:null,mcat:'디저트',
      lines:m[3].map(l=>({ingId:(byName(l[0])||{}).id,use:l[1]}))}));
   const cats=[...new Set(ing.map(i=>i.cat))];
-  return {target:0.35, ing, menus, cats, menuCats:['커피','디저트','제품 판매'], salesOpen:{}, menuOpen:{}, buyList:[], staffShowBest:true, staffShowGoal:false, checklist:defChecklist(), checkDone:{}, handover:[], notes:{}, sales:{}, extra:{}, savedDays:{}, expenses:{}, dexp:{}, goalRev:30000000, goalProfit:0, workdays:26, prodPlan:{}, orderGroups:[], orderQty:{}, orderDow:''};
+  return migrate({target:0.35, ing, menus, cats, menuCats:['커피','디저트','제품 판매'], salesOpen:{}, menuOpen:{}, buyList:[], staffShowBest:true, staffShowGoal:false, checklist:defChecklist(), checkDone:{}, handover:[], notes:{}, sales:{}, extra:{}, savedDays:{}, expenses:{}, dexp:{}, goalRev:30000000, goalProfit:0, workdays:26, prodPlan:{}, orderGroups:[], orderQty:{}, orderDow:''});
 }
 function migrate(r){r.sales=r.sales||{};r.expenses=r.expenses||{};r.dexp=r.dexp||{};r.goalRev=r.goalRev||0;r.goalProfit=r.goalProfit||0;r.prodPlan=r.prodPlan||{};r.notes=r.notes||{};
   r.extra=r.extra||{};r.savedDays=r.savedDays||{};r.orderGroups=r.orderGroups||[];r.workdays=r.workdays||26;r.orderQty=r.orderQty||{};if(r.orderDow==null)r.orderDow='';
@@ -573,6 +563,39 @@ function migrate(r){r.sales=r.sales||{};r.expenses=r.expenses||{};r.dexp=r.dexp|
   (r.ing||[]).forEach(i=>{if(i.hl==='y')i.hl='mid';else if(i.hl==='p')i.hl='often';else if(i.hl==='g')i.hl='core';});
   if(!r._cafePartsV1){['커피','에이드','시그니처','티','논커피','디저트'].forEach(p=>{if(!r.menuCats.includes(p))r.menuCats.push(p);});r._cafePartsV1=1;}
   r.menus.forEach(mn=>{if(!mn.mcat)mn.mcat='디저트';});
+  if(!r._realMenuV1){
+    const RM=[
+      ['아메리카노',5000,'커피','vanilla · brown sugar · dark chocolate'],
+      ['아프리 아메리카노',5500,'커피','⭐ 시그니처 블렌드 · apricot · peach · berries'],
+      ['라떼',6000,'커피','아몬드 밀크·두유 변경 가능'],
+      ['바닐라 라떼',6500,'커피',''],
+      ['아프리 라떼',8000,'시그니처','⭐ 수제 살구청과 바닐라 시럽을 더한 우유 위에 부드러운 크림 (ICED)'],
+      ['아프리 에이드',7500,'시그니처','⭐ 수제 살구청과 레몬향 탄산, 그리고 살구 얼음 (ICED)'],
+      ['아프리 블랙티',7500,'시그니처','⭐ 얼그레이에 살구 향을 더한 블랙티'],
+      ['스트로베리 라떼',7500,'논커피','설향 딸기 라떼 (ICED)'],
+      ['발로나 초콜릿 라떼',8000,'논커피','발로나 초콜릿을 녹여 만든 진한 초코라떼'],
+      ['시칠리안 피스타치오 라떼',8000,'논커피','시칠리아산 100% 피스타치오 페이스트와 부드러운 크림 (ICED)'],
+      ['프레시 밀크',4500,'논커피','우유'],
+      ['리얼 레몬 에이드',7000,'에이드','생레몬을 직접 짜서 만든 에이드'],
+      ['모히또 에이드',7500,'에이드','상큼한 라임과 향긋한 민트가 어우러진 청량한 에이드'],
+      ['애프리콧 얼그레이',6000,'티','⭐ 홍차, 살구, 블루콘플라워, 리치향'],
+      ['그린 브리즈',6000,'티','녹차, 귤피, 스피아민트, 레몬머틀, 콘플라워핑크, 마리골드'],
+      ['카라멜 코코',6000,'티','홍차, 로즈힙, 카카오닙스, 다크초콜릿, 버터스카치향'],
+      ['루이보스 마망',6000,'티','루이보스, 바닐라향, 크림향'],
+      ['바스크 치즈케이크',9500,'디저트','진하고 크리미한 바스크 치즈케이크와 수제 살구 마멀레이드'],
+      ['아프리 아몬드 쿠키',6300,'디저트','살구 마멀레이드를 올린 아몬드쿠키'],
+      ['아프리 뱅 쿠키',4500,'디저트','와인에 절인 살구와 호두를 넣어 만든 겉은 바삭 속은 쫀득한 쿠키'],
+      ['애프리콧 르뱅',6300,'디저트','APRI POCO 시그니처 살구 르뱅 쿠키 · 살구·오렌지필·통아몬드·호두·와인'],
+      ['다크 헤이즐넛 르뱅',5700,'디저트','헤이즐넛 버터 반죽에 다크·밀크 초콜릿과 통헤이즐넛을 넣은 르뱅 쿠키'],
+      ['빈티지 캐롯',9000,'디저트','흙당근을 직접 손질해 만든, 당근 못 먹는 사람도 먹을 수 있는 당근 케이크']
+    ];
+    const nz=s=>(s||'').replace(/\s/g,'').toLowerCase();
+    RM.forEach(a=>{const ex=r.menus.find(m=>nz(m.name)===nz(a[0]));
+      if(ex){if(!ex.sell)ex.sell=a[1];if(!ex.desc)ex.desc=a[3];ex.mcat=a[2];}
+      else{r.menus.push({id:uid(),name:a[0],sell:a[1],yield:1,desc:a[3],img:null,mcat:a[2],hidden:false,lines:[]});}});
+    r.menus=r.menus.filter(m=>!/^\(이름\s*미정\)/.test(m.name||''));
+    r._realMenuV1=1;
+  }
   if(!r.cats||!r.cats.length)r.cats=[...new Set(r.ing.map(i=>i.cat))];return r;}
 function save(){localStorage.setItem(KEY,JSON.stringify(S));schedulePush();}
 /* ===== Supabase 클라우드 동기화 (매장 코드로 여러 기기 공유) ===== */
@@ -1128,12 +1151,15 @@ function renderSet(){
      </div>
    </div>
    <div class="card">
-     <div class="eyebrow">데이터</div>
-     <div class="mute" style="font-size:12.5px;margin:8px 0 16px">입력한 내용은 이 기기 브라우저에 자동 저장됩니다.</div>
-     <div class="row" style="gap:9px">
-       <button class="btn ghost sm" id="exportBtn">백업 내보내기</button>
+     <div class="eyebrow">💾 데이터 백업</div>
+     <div class="mute" style="font-size:12.5px;margin:8px 0 12px;line-height:1.6">입력 내용은 이 기기에 자동 저장돼요. 단, <b style="color:var(--accent)">기기를 바꾸거나 브라우저를 지우면 사라질 수 있어요.</b> 가끔 <b style="color:var(--ink)">백업 파일</b>을 내보내 카톡(나에게)·메일·드라이브에 보관하면 안전해요. 되돌릴 땐 가져오기.</div>
+     <div class="row" style="gap:9px;flex-wrap:wrap">
+       <button class="btn acc sm" id="exportBtn">⬇ 백업 내보내기</button>
+       <button class="btn ghost sm" id="importBtn">⬆ 백업 가져오기</button>
+       <input type="file" id="importFile" accept="application/json,.json" style="display:none">
        <button class="btn ghost sm" id="resetBtn" style="color:var(--accent);border-color:var(--accent)">초기화</button>
      </div>
+     <div class="mute" style="font-size:11px;margin-top:10px">☁️ 위 <b style="color:var(--ink)">클라우드</b>까지 켜두면 자동으로도 안전하게 보관돼요 (제일 확실).</div>
    </div>
    <div class="mute cormo" style="text-align:center;font-size:15px;font-style:italic;margin:14px 0">may this little spell bring you happiness</div>`;
 }
@@ -1506,7 +1532,8 @@ document.addEventListener('click',e=>{
   if(t.id==='ownerEnter'){showLock('owner');return;}
   if(t.id==='toStaff'){role='staff';sessionStorage.removeItem('apri_role');if(OWNER_ONLY.includes(cur))cur='summary';else cur='summary';window.scrollTo(0,0);render();toast('👷 직원 모드로 전환됐어요');return;}
   if(t.id==='resetBtn'){if(confirm('모든 데이터를 초기화할까요?')){localStorage.removeItem(KEY);S=load();save();render();}return;}
-  if(t.id==='exportBtn'){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='apripoco-원가백업.json';a.click();return;}
+  if(t.id==='exportBtn'){const d=new Date();const ymd=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='apripoco-백업-'+ymd+'.json';a.click();toast('⬇ 백업 파일을 저장했어요 · 카톡/메일에 보관하세요');return;}
+  if(t.id==='importBtn'){const fi=document.getElementById('importFile');if(fi)fi.click();return;}
   if(t.dataset.dateshift){salesDate=shiftDate(salesDate,+t.dataset.dateshift);renderSales();return;}
   if(t.dataset.pickday){salesDate=t.dataset.pickday;renderSales();return;}
   if(t.dataset.calmo){shiftSalesMonth(+t.dataset.calmo);renderSales();return;}
@@ -1619,6 +1646,7 @@ function resizeImg(file,cb){const fr=new FileReader();fr.onload=()=>{const img=n
   const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);
   cb(cv.toDataURL('image/jpeg',0.82));};img.src=fr.result;};fr.readAsDataURL(file);}
 document.addEventListener('change',e=>{const t=e.target;
+  if(t.id==='importFile'){const f=t.files&&t.files[0];if(!f){return;}const rd=new FileReader();rd.onload=()=>{let data=null;try{data=JSON.parse(rd.result);}catch(e){}if(!data||!data.ing){alert('백업 파일이 아니거나 손상됐어요. (apripoco-백업-...json 파일을 골라주세요)');t.value='';return;}if(confirm('이 백업으로 되돌릴까요?\n\n지금 이 기기의 내용은 백업 내용으로 교체됩니다. (되돌릴 수 없어요)')){S=migrate(data);save();toast('✓ 백업을 불러왔어요');render();}t.value='';};rd.readAsText(f);return;}
   if(t.dataset.catname){const oldn=t.dataset.catname,newn=(t.value||'').trim();if(!newn||newn===oldn)return;
     if(S.cats.includes(newn)){toast('이미 있는 분류 이름이에요');renderMat();return;}
     S.cats=S.cats.map(c=>c===oldn?newn:c);S.ing.forEach(i=>{if(i.cat===oldn)i.cat=newn;});
